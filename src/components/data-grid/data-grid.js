@@ -4,27 +4,28 @@ import { FormItem } from '../form-item';
 import Pagination from '../pagination';
 
 export function DataGrid() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // --- API Hooks ---
+  const [items, setItems] = useState([]); // Loaded items
+  const [loading, setLoading] = useState(false); // Loading effect while waiting for fetching
+  // --- Pagination Hooks ---
+  const [order, setOrder] = useState(Boolean); // Boolean state to sort items. Default is true
+  const [currentPage, setCurrentPage] = useState(1); // currentPage hook (starts from 1)
+  const [itemsPerPage] = useState(50); // 50 items per page
+  // --- Todo Hook ---
+  const [todo, setTodo] = useState(null); // todo hook for every add, remove, & edit functionality
 
-  const [order, setOrder] = useState(Boolean);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(50);
-
-  const [todo, setTodo] = useState(null);
-
+  // Callback for loadData function to load items
   useEffect(() => {
     loadData();
   }, []);
 
-  // Get current items
+  // Getting current items
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Sorting
-  const sorting = (col) => {
+  // Sorting Function
+  const sortItems = (col) => {
     if (order) {
       const sorted = [...items].sort((a, b) => (a[col] > b[col] ? -1 : -1));
       setItems(sorted);
@@ -36,7 +37,7 @@ export function DataGrid() {
     }
   };
 
-  // Change page
+  // Paginate variable to use as a prop in Pagination component
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const loadData = () => {
@@ -52,10 +53,12 @@ export function DataGrid() {
         setLoading(false);
       });
   };
+
   const renderBody = () => {
     return (
       <React.Fragment>
         {currentItems.map((item, i) => {
+          // mapping through currentItems that we have determined above
           return (
             <tr key={i}>
               <th scope="row">{item.id}</th>
@@ -89,13 +92,13 @@ export function DataGrid() {
         <table className="table">
           <thead>
             <tr>
-              <th scope="col" onClick={() => sorting('id')}>
+              <th scope="col" onClick={() => sortItems('id')}>
                 #
               </th>
-              <th scope="col" onClick={() => sorting('title')}>
+              <th scope="col" onClick={() => sortItems('title')}>
                 Başlık
               </th>
-              <th scope="col" onClick={() => sorting('completed')}>
+              <th scope="col" onClick={() => sortItems('completed')}>
                 Durum
               </th>
               <th scope="col">Aksiyonlar</th>
@@ -103,6 +106,7 @@ export function DataGrid() {
           </thead>
           <tbody>{renderBody()}</tbody>
         </table>
+        {/* Pagination Component */}
         <Pagination
           itemsPerPage={itemsPerPage}
           totalItems={items.length}
@@ -126,7 +130,7 @@ export function DataGrid() {
       return;
     }
     // update
-    const index = items.findIndex((item) => item.id == todo.id);
+    const index = items.findIndex((item) => item.id === todo.id);
     setItems((items) => {
       items[index] = todo;
       return [...items];
@@ -148,7 +152,7 @@ export function DataGrid() {
     if (!status) {
       return;
     }
-    const index = items.findIndex((item) => item.id == id);
+    const index = items.findIndex((item) => item.id === id);
 
     setItems((items) => {
       items.splice(index, 1);
