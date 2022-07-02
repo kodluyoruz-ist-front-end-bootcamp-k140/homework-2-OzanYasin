@@ -6,8 +6,12 @@ import Pagination from '../pagination';
 export function DataGrid() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [order, setOrder] = useState(Boolean);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(50);
+
   const [todo, setTodo] = useState(null);
 
   useEffect(() => {
@@ -18,6 +22,19 @@ export function DataGrid() {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Sorting
+  const sorting = (col) => {
+    if (order) {
+      const sorted = [...items].sort((a, b) => (a[col] > b[col] ? -1 : -1));
+      setItems(sorted);
+      setOrder(false);
+    } else {
+      const sorted = [...items].sort((a, b) => (a[col] < b[col] ? -1 : 1));
+      setItems(sorted);
+      setOrder(true);
+    }
+  };
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -72,9 +89,15 @@ export function DataGrid() {
         <table className="table">
           <thead>
             <tr>
-              <th scope="col">#</th>
-              <th scope="col">Başlık</th>
-              <th scope="col">Durum</th>
+              <th scope="col" onClick={() => sorting('id')}>
+                #
+              </th>
+              <th scope="col" onClick={() => sorting('title')}>
+                Başlık
+              </th>
+              <th scope="col" onClick={() => sorting('completed')}>
+                Durum
+              </th>
               <th scope="col">Aksiyonlar</th>
             </tr>
           </thead>
